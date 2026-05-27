@@ -8,6 +8,15 @@ const localePath = useLocalePath()
       <h1 class="font-serif">Politiscales</h1>
     </template>
 
+    <template #body>
+      <UNavigationMenu
+        :items="[
+          { label: $t('nav_home'), to: localePath('/') },
+          { label: $t('nav_about'), to: localePath('/about') }
+        ]"
+      />
+    </template>
+
     <template #right>
       <HeaderLangSwitcher />
       <UColorModeButton />

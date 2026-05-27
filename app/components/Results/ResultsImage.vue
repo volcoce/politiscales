@@ -248,7 +248,7 @@ const unpairedAxesBadges = computed(() => {
       ([key, value]) =>
         value !== null &&
         value / 100 >= badgeThreshold[key as keyof typeof badgeThreshold] &&
-        'pair' in axes[key as keyof typeof axes]
+        !('pair' in axes[key as keyof typeof axes])
     )
     .map(([key, value]) => ({
       name: key,

@@ -1658,5 +1658,112 @@ export const questionsWeights: QuestionWeights = {
       }
     ],
     valuesNo: []
+  },
+
+  // Materialism/Idealism
+  materialism_physical_reality: {
+    valuesYes: [
+      { axis: 'materialism', value: 3 }
+    ],
+    valuesNo: [
+      { axis: 'idealism', value: 3 }
+    ]
+  },
+  materialism_economics_behavior: {
+    valuesYes: [
+      { axis: 'materialism', value: 3 }
+    ],
+    valuesNo: [
+      { axis: 'idealism', value: 2 }
+    ]
+  },
+  materialism_science_sufficient: {
+    valuesYes: [
+      { axis: 'materialism', value: 2 }
+    ],
+    valuesNo: [
+      { axis: 'idealism', value: 2 }
+    ]
+  },
+  idealism_consciousness_primary: {
+    valuesYes: [
+      { axis: 'idealism', value: 3 }
+    ],
+    valuesNo: [
+      { axis: 'materialism', value: 3 }
+    ]
+  },
+  idealism_ideas_change_world: {
+    valuesYes: [
+      { axis: 'idealism', value: 3 }
+    ],
+    valuesNo: [
+      { axis: 'materialism', value: 2 }
+    ]
+  },
+  idealism_transcendence_reality: {
+    valuesYes: [
+      { axis: 'idealism', value: 2 }
+    ],
+    valuesNo: [
+      { axis: 'materialism', value: 2 }
+    ]
+  },
+
+  // Sustainability/Growth at all costs
+  sustainability_future_generations: {
+    valuesYes: [
+      { axis: 'sustainability', value: 3 },
+      { axis: 'ecology', value: 1 }
+    ],
+    valuesNo: [
+      { axis: 'growth_at_all_costs', value: 3 }
+    ]
+  },
+  sustainability_renewable_transition: {
+    valuesYes: [
+      { axis: 'sustainability', value: 3 },
+      { axis: 'ecology', value: 1 }
+    ],
+    valuesNo: [
+      { axis: 'growth_at_all_costs', value: 2 },
+      { axis: 'production', value: 1 }
+    ]
+  },
+  sustainability_consumption_limit: {
+    valuesYes: [
+      { axis: 'sustainability', value: 2 },
+      { axis: 'ecology', value: 1 }
+    ],
+    valuesNo: [
+      { axis: 'growth_at_all_costs', value: 2 }
+    ]
+  },
+  growth_at_all_costs_prosperity: {
+    valuesYes: [
+      { axis: 'growth_at_all_costs', value: 3 },
+      { axis: 'production', value: 1 }
+    ],
+    valuesNo: [
+      { axis: 'sustainability', value: 2 }
+    ]
+  },
+  growth_at_all_costs_technology: {
+    valuesYes: [
+      { axis: 'growth_at_all_costs', value: 2 },
+      { axis: 'production', value: 2 }
+    ],
+    valuesNo: [
+      { axis: 'sustainability', value: 2 }
+    ]
+  },
+  growth_at_all_costs_priority: {
+    valuesYes: [
+      { axis: 'growth_at_all_costs', value: 3 }
+    ],
+    valuesNo: [
+      { axis: 'sustainability', value: 2 },
+      { axis: 'ecology', value: 1 }
+    ]
   }
 }
