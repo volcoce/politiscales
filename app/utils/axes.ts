@@ -168,11 +168,10 @@ export type UnpairedAxesKey = keyof typeof unpairedAxes
 export const unpairedAxesKeys = Object.keys(unpairedAxes) as UnpairedAxesKey[]
 
 export const axes = { ...pairedAxes, ...unpairedAxes }
-export const axesKeys = Object.keys(axes) as (PairedAxesKey | UnpairedAxesKey)[]
+export type AxisKey = PairedAxesKey | UnpairedAxesKey
+export const axesKeys = Object.keys(axes) as AxisKey[]
 
-export interface AxisValues {
-  [key: string]: number | null
-}
+export type AxisValues = Partial<Record<AxisKey, number | null>>
 
 export const charSlogan = {
   internationalism: 'humanity',

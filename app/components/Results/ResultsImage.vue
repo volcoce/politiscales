@@ -43,57 +43,57 @@
         <rect
           x="0"
           y="0"
-          :width="`${(pair.value1 / 100) * barWidth}`"
+          :width="`${pair.value1 * barWidth}`"
           :height="barHeight"
           :fill="pair.fill1"
         />
         <text
-          v-if="(pair.value1 / 100) * barWidth > 40"
-          :x="`${((pair.value1 / 100) * barWidth) / 2}`"
+          v-if="pair.value1 * barWidth > 40"
+          :x="`${(pair.value1 * barWidth) / 2}`"
           :y="barHeight / 2"
           text-anchor="middle"
           dominant-baseline="middle"
           class="text-sm fill-white"
         >
-          {{ Math.round(pair.value1) }}%
+          {{ Math.round(pair.value1 * 100) }}%
         </text>
 
         <!-- Neutral value -->
         <rect
-          :x="`${(pair.value1 / 100) * barWidth}`"
+          :x="`${pair.value1 * barWidth}`"
           y="0"
-          :width="`${(pair.neutral / 100) * barWidth}`"
+          :width="`${pair.neutral * barWidth}`"
           :height="barHeight"
           fill="#FFFFFF"
         />
         <text
-          v-if="(pair.neutral / 100) * barWidth > 40"
-          :x="`${(pair.value1 / 100) * barWidth + ((pair.neutral / 100) * barWidth) / 2}`"
+          v-if="pair.neutral * barWidth > 40"
+          :x="`${pair.value1 * barWidth + (pair.neutral * barWidth) / 2}`"
           :y="barHeight / 2"
           text-anchor="middle"
           dominant-baseline="middle"
           class="text-sm fill-gray-500"
         >
-          {{ Math.round(pair.neutral) }}%
+          {{ Math.round(pair.neutral * 100) }}%
         </text>
 
         <!-- Second axis -->
         <rect
-          :x="`${((pair.value1 + pair.neutral) / 100) * barWidth}`"
+          :x="`${(pair.value1 + pair.neutral) * barWidth}`"
           y="0"
-          :width="`${(pair.value2 / 100) * barWidth}`"
+          :width="`${pair.value2 * barWidth}`"
           :height="barHeight"
           :fill="pair.fill2"
         />
         <text
-          v-if="(pair.value2 / 100) * barWidth > 40"
-          :x="`${((pair.value1 + pair.neutral) / 100) * barWidth + ((pair.value2 / 100) * barWidth) / 2}`"
+          v-if="pair.value2 * barWidth > 40"
+          :x="`${(pair.value1 + pair.neutral) * barWidth + (pair.value2 * barWidth) / 2}`"
           :y="barHeight / 2"
           text-anchor="middle"
           dominant-baseline="middle"
           class="text-sm fill-white"
         >
-          {{ Math.round(pair.value2) }}%
+          {{ Math.round(pair.value2 * 100) }}%
         </text>
 
         <!-- Icons -->
@@ -181,7 +181,7 @@ const axesPairs = computed(() => {
 
   // Group axes by pairs
   Object.entries(axes)
-    .filter(([axisKey]) => props.axes[axisKey] != null)
+    .filter(([axisKey]) => props.axes[axisKey as AxisKey] != null)
     .forEach(([axisKey, axis]) => {
       if ('pair' in axis) {
         if (axis.pair) {
@@ -193,12 +193,12 @@ const axesPairs = computed(() => {
       }
     })
 
-  // Calculate values for each pair
+  // Calculate values for each pair (values are 0-1 fractions)
   return Object.entries(pairs).map(([pairName, pairAxes]) => {
     const [axis1, axis2] = pairAxes
     const value1 = (axis1 && props.axes[axis1]) || 0
     const value2 = (axis2 && props.axes[axis2]) || 0
-    const neutral = Math.max(0, 100 - value1 - value2)
+    const neutral = Math.max(0, 1 - value1 - value2)
     const axe1 = (axis1 && axes[axis1]) || null
     const axe2 = (axis2 && axes[axis2]) || null
 
@@ -217,7 +217,7 @@ const axesPairs = computed(() => {
 
 const characteristics = computed(() => {
   return Object.entries(props.axes)
-    .filter(([value]) => value !== null)
+    .filter(([, value]) => value !== null)
     .map(([key, value]) => ({
       name: key as keyof typeof charSlogan,
       value: value
@@ -247,8 +247,8 @@ const unpairedAxesBadges = computed(() => {
     .filter(
       ([key, value]) =>
         value !== null &&
-        value / 100 >= badgeThreshold[key as keyof typeof badgeThreshold] &&
-        'pair' in axes[key as keyof typeof axes]
+        key in badgeThreshold &&
+        value >= (badgeThreshold[key as keyof typeof badgeThreshold] ?? 1)
     )
     .map(([key, value]) => ({
       name: key,

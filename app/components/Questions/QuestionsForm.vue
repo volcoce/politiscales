@@ -4,8 +4,6 @@ const { encodeResultsStr } = useSerializer()
 const questionsState = useQuestionsState()
 const localePath = useLocalePath()
 
-const axesKeys = Object.keys(axes)
-
 const currentQuestion = computed(() =>
   t(
     `questions.${questionsIds.value[questionsState.value.currentQuestionIndex]}`
@@ -50,34 +48,33 @@ const quizResults = computed<AxisValues>(() => {
     }
   )
 
-  // Normalize paired axes
-  const pairedAxes: { [key: string]: string[] } = {}
+  // Normalize paired axes so neither side of a pair exceeds 1.0
+  const pairGroups: { [key: string]: string[] } = {}
   axesKeys.forEach((axis) => {
-    const axe = axes[axis as keyof typeof axes]
+    const axe = axes[axis]
     if ('pair' in axe) {
-      if (!pairedAxes[axe.pair]) {
-        pairedAxes[axe.pair] = []
+      if (!pairGroups[axe.pair]) {
+        pairGroups[axe.pair] = []
       }
-      pairedAxes[axe.pair]!.push(axis)
+      pairGroups[axe.pair]!.push(axis)
     }
   })
 
-  // For each pair, ensure their sum doesn't exceed 100%
-  Object.values(pairedAxes).forEach((pair) => {
+  Object.values(pairGroups).forEach((pair) => {
     const [axis1, axis2] = pair as [string, string]
-    const value1 = (scores[axis1]!.val / scores[axis1]!.sum) * 100
-    const value2 = (scores[axis2]!.val / scores[axis2]!.sum) * 100
+    const value1 = scores[axis1]!.sum > 0 ? scores[axis1]!.val / scores[axis1]!.sum : 0
+    const value2 = scores[axis2]!.sum > 0 ? scores[axis2]!.val / scores[axis2]!.sum : 0
 
-    if (value1 + value2 > 100) {
-      const ratio = 100 / (value1 + value2)
+    if (value1 + value2 > 1) {
+      const ratio = 1 / (value1 + value2)
       scores[axis1]!.val *= ratio
       scores[axis2]!.val *= ratio
     }
   })
 
-  // Convert to percentages
+  // Convert to 0-1 fractions (null when no questions were answered for that axis)
   return Object.entries(scores).reduce((acc, [axis, score]) => {
-    acc[axis] = (score.val / score.sum) * 100
+    acc[axis as AxisKey] = score.sum > 0 ? score.val / score.sum : null
     return acc
   }, {} as AxisValues)
 })
