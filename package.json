@@ -13,6 +13,7 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
+    "@intlify/message-compiler": "^10.0.4",
     "@nuxt/ui": "^3.0.0-alpha.12",
     "@nuxt/ui-pro": "^3.0.0-alpha.12",
     "@nuxtjs/i18n": "^9.2.0",
