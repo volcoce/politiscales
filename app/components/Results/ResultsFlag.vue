@@ -180,40 +180,29 @@ watch(
   { deep: true }
 )
 
-const axesValues = computed<AxisValues>(() => {
-  return Object.fromEntries(
-    Object.entries(props.axes).map(([key, value]) => [
-      key,
-      value !== null ? value : null
-    ])
-  )
-})
-
-interface FlagColor {
+interface GeneratedFlagColor {
   bgColor: string
   fgColor: string
   value: number
 }
 
 const generatedFlagColors = computed(() => {
-  const colors: FlagColor[] = []
-
-  if (!axesValues.value) return colors
+  const colors: GeneratedFlagColor[] = []
 
   for (const flagColor of flagColors) {
-    for (const [axis, axisPercentage] of Object.entries(axesValues.value)) {
-      const cond = flagColor.cond[axis] as { vmin: number; vmax: number }
+    for (const [axis, axisPercentage] of Object.entries(props.axes)) {
+      const cond = flagColor.cond[axis as AxisKey]
       if (
-        !(axis in flagColor.cond) ||
-        (axisPercentage || 0) < cond.vmin ||
-        (axisPercentage || 0) > cond.vmax
+        !cond ||
+        (axisPercentage ?? 0) < cond.vmin ||
+        (axisPercentage ?? 0) > cond.vmax
       ) {
         continue
       }
       colors.push({
         bgColor: flagColor.bgColor,
         fgColor: flagColor.fgColor,
-        value: axisPercentage || 0
+        value: axisPercentage ?? 0
       })
       break
     }
@@ -270,13 +259,13 @@ const generatedFlagSymbol = computed(() => {
   }
 
   function matchCharacteristic(flagSymbol: FlagSymbol): number {
-    const match = Object.entries(axesValues.value).find(
+    const match = Object.entries(props.axes).find(
       ([axis, axisPercentage]) => {
-        const cond = flagSymbol.cond[axis] as { vmin: number; vmax: number }
-        if (axis in flagSymbol.cond) {
+        const cond = flagSymbol.cond[axis as AxisKey]
+        if (cond) {
           return (
-            (axisPercentage || 0) >= cond.vmin &&
-            (axisPercentage || 0) <= cond.vmax
+            (axisPercentage ?? 0) >= cond.vmin &&
+            (axisPercentage ?? 0) <= cond.vmax
           )
         }
       }
@@ -361,16 +350,11 @@ const generatedFlagShape = computed(() => {
 
     let j = 0
     for (const axisName in flagShape.cond) {
-      const value = axesValues.value[axisName]
+      // Treat missing/null axis values as 0 (neutral)
+      const value = props.axes[axisName as AxisKey] ?? 0
 
-      if (typeof value !== 'number')
-        throw new Error(`Invalid axis value ${axisName}:${value}`)
-
-      if (
-        flagShape.cond[axisName] &&
-        (value < flagShape.cond[axisName].vmin ||
-          value > flagShape.cond[axisName].vmax)
-      ) {
+      const cond = flagShape.cond[axisName as AxisKey]
+      if (cond && (value < cond.vmin || value > cond.vmax)) {
         accepted = false
         break
       }

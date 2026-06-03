@@ -544,15 +544,12 @@ const shapes = {
   }
 } satisfies Record<string, Record<string, Shape>>
 
+type AxisCondMap = Partial<Record<AxisKey, { vmin: number; vmax: number }>>
+
 export interface FlagShape {
   numColors: number
   shape: Shape
-  cond: {
-    [key: string]: {
-      vmin: number
-      vmax: number
-    }
-  }
+  cond: AxisCondMap
 }
 
 export const flagShapes: FlagShape[] = [
@@ -1470,12 +1467,7 @@ export const flagShapes: FlagShape[] = [
 interface FlagColor {
   bgColor: string
   fgColor: string
-  cond: {
-    [key: string]: {
-      vmin: number
-      vmax: number
-    }
-  }
+  cond: AxisCondMap
 }
 
 export const flagColors: FlagColor[] = [
@@ -1547,7 +1539,7 @@ export const flagColors: FlagColor[] = [
         vmin: 0,
         vmax: 0.6
       },
-      capitalist: {
+      capitalism: {
         vmin: 0.05,
         vmax: 0.4
       }
@@ -1641,12 +1633,7 @@ export interface FlagSymbol {
     parent_type: string
     transforms: Transform[]
   }
-  cond: {
-    [key: string]: {
-      vmin: number
-      vmax: number
-    }
-  }
+  cond: AxisCondMap
 }
 
 export const flagSymbols: FlagSymbol[] = [

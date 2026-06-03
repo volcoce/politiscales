@@ -8,13 +8,8 @@ export const useSerializer = () => {
     'tSEU1dhNY5GRcVC0mXexwsDbBlPjk2IQ86Krnu9J37HzOgf4oZqyap.-FWvTAiML'
   const NaN_VALUE = 101 // Using 101 as our special NaN/null indicator
 
-  /**
-   * Encodes a axis and score into a 2-character string
-   * @param axis Number between 0 and 31
-   * @param score Number between 0 and 100, or null/NaN
-   * @returns A 2-character string encoding both values
-   * @throws {Error} If inputs are out of range
-   */
+  // Encodes axis index and score (0-1 float) into a 2-character string.
+  // Score is stored as a 0-100 integer internally for compact encoding.
   const encodeAxis = (
     axis: number,
     score: number | null | undefined
@@ -26,10 +21,10 @@ export const useSerializer = () => {
     const scoreValue =
       isNaN(score as number) || score === null || score === undefined
         ? NaN_VALUE
-        : score
+        : Math.round(score * 100)
 
     if (scoreValue !== NaN_VALUE && (scoreValue < 0 || scoreValue > 100)) {
-      throw new Error('score must be between 0 and 100')
+      throw new Error('score must be between 0 and 1')
     }
 
     const axisBits = axis & 0b11111
@@ -42,12 +37,7 @@ export const useSerializer = () => {
     return char1 + char2
   }
 
-  /**
-   * Decodes a 2-character string back into axis and score values
-   * @param str A 2-character string previously created by encode()
-   * @returns Object containing axis and score values (score can be null)
-   * @throws {Error} If input string is invalid
-   */
+  // Decodes a 2-character string back into axis index and score (0-1 float).
   const decodeAxis = (str: string): CompressedData => {
     if (str.length !== 2) {
       throw new Error('Invalid encoded string length')
@@ -66,7 +56,7 @@ export const useSerializer = () => {
 
     return {
       axis,
-      score: rawscore === NaN_VALUE ? null : rawscore
+      score: rawscore === NaN_VALUE ? null : rawscore / 100
     }
   }
 
@@ -85,11 +75,11 @@ export const useSerializer = () => {
   const decodeResultsStr = (str: string): AxisValues | null => {
     try {
       const axisValues: AxisValues = {}
-      const axesKeys = Object.keys(axes)
+      const allAxesKeys = Object.keys(axes) as AxisKey[]
       if (!str || str.length % 2 !== 0) return null
       for (let i = 0; i < str.length; i += 2) {
         const axisValue = decodeAxis(str.slice(i, i + 2))
-        axisValues[axesKeys[axisValue.axis] as string] = axisValue.score
+        axisValues[allAxesKeys[axisValue.axis] as AxisKey] = axisValue.score
       }
       return axisValues
     } catch {
@@ -110,13 +100,14 @@ export const useSerializer = () => {
 
       const retAxesValues: AxisValues = {}
 
-      // We convert the legacy keys to the new keys (e.g "j0" to "rehabilitative_justice")
-      ;(Object.keys(axes) as (keyof typeof axes)[]).forEach((key) => {
+      // We convert the legacy keys to the new keys (e.g "j0" to "rehabilitative_justice").
+      // Legacy values are stored as integers 0-100; divide by 100 to normalize to 0-1.
+      ;(Object.keys(axes) as AxisKey[]).forEach((key) => {
         const axis = axes[key]
         if ('legacyKey' in axis) {
           const value = parseInt(pairsDict[axis.legacyKey]!)
           if (typeof value === 'number' && !isNaN(value)) {
-            retAxesValues[key] = value
+            retAxesValues[key] = value / 100
             return
           }
           if (axis.legacyKey && 'pair' in axis) retAxesValues[key] = 0
