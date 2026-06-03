@@ -23,7 +23,6 @@ interface Score {
 }
 
 const quizResults = computed<AxisValues>(() => {
-  // First calculate raw scores as before
   const scores = axesKeys.reduce(
     (acc, axis) => {
       acc[axis] = { val: 0, sum: 0 }
@@ -48,7 +47,6 @@ const quizResults = computed<AxisValues>(() => {
     }
   )
 
-  // Normalize paired axes so neither side of a pair exceeds 1.0
   const pairGroups: { [key: string]: string[] } = {}
   axesKeys.forEach((axis) => {
     const axe = axes[axis]
@@ -72,7 +70,6 @@ const quizResults = computed<AxisValues>(() => {
     }
   })
 
-  // Convert to 0-1 fractions (null when no questions were answered for that axis)
   return Object.entries(scores).reduce((acc, [axis, score]) => {
     acc[axis as AxisKey] = score.sum > 0 ? score.val / score.sum : null
     return acc
@@ -109,56 +106,78 @@ const nextQuestion = (mult: number) => {
 </script>
 
 <template>
-  <i18n-t
-    keypath="question_x_of_n"
-    scope="global"
-    tag="span"
-    class="text-xl my-4 font-serif"
-  >
-    <template #x>
-      <span>{{ questionsState.currentQuestionIndex + 1 }}</span>
-    </template>
-    <template #n>
-      {{ questionsIds.length }}
-    </template>
-  </i18n-t>
-  <h2 class="text-2xl my-4 min-h-[3lh]">
-    {{ currentQuestion }}
-  </h2>
-  <div class="flex flex-col gap-4 mt-16 max-w-[256px] m-auto">
-    <UButton color="neutral" size="xl" @click="nextQuestion(1)">
-      {{ $t('strong_agree') }}
-    </UButton>
-    <UButton color="neutral" size="xl" @click="nextQuestion(2 / 3)">
-      {{ $t('agree') }}
-    </UButton>
-    <UButton color="neutral" size="xl" @click="nextQuestion(0)">
-      {{ $t('neutral') }}
-    </UButton>
-    <UButton color="neutral" size="xl" @click="nextQuestion(-2 / 3)">
-      {{ $t('disagree') }}
-    </UButton>
-    <UButton color="neutral" size="xl" @click="nextQuestion(-1)">
-      {{ $t('strong_disagree') }}
-    </UButton>
+  <div class="max-w-2xl mx-auto px-4 py-8">
+    <h2 class="text-xl font-serif mb-6 text-center text-gray-500">
+      <i18n-t keypath="question_x_of_n" scope="global">
+        <template #x>{{ questionsState.currentQuestionIndex + 1 }}</template>
+        <template #n>{{ questionsIds.length }}</template>
+      </i18n-t>
+    </h2>
 
-    <UButton
-      v-if="questionsState.currentQuestionIndex > 0"
-      color="neutral"
-      size="xl"
-      @click="prevQuestion"
-    >
-      {{ $t('prev_question') }}
-    </UButton>
-    <UButton
-      v-if="questionsState.currentQuestionIndex === 0"
-      color="neutral"
-      size="xl"
-      to="/"
-    >
-      {{ $t('back_home') }}
-    </UButton>
+    <div class="border border-gray-200 rounded-lg p-6 mb-8 min-h-[6rem] flex items-center justify-center bg-white dark:bg-gray-900 dark:border-gray-700">
+      <p class="text-lg leading-relaxed text-center">{{ currentQuestion }}</p>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <UButton
+        color="success"
+        size="xl"
+        class="w-full justify-center"
+        @click="nextQuestion(1)"
+      >
+        {{ $t('strong_agree') }}
+      </UButton>
+      <UButton
+        color="success"
+        variant="soft"
+        size="xl"
+        class="w-full justify-center"
+        @click="nextQuestion(2 / 3)"
+      >
+        {{ $t('agree') }}
+      </UButton>
+      <UButton
+        color="neutral"
+        variant="soft"
+        size="xl"
+        class="w-full justify-center"
+        @click="nextQuestion(0)"
+      >
+        {{ $t('neutral') }}
+      </UButton>
+      <UButton
+        color="warning"
+        variant="soft"
+        size="xl"
+        class="w-full justify-center"
+        @click="nextQuestion(-2 / 3)"
+      >
+        {{ $t('disagree') }}
+      </UButton>
+      <UButton
+        color="error"
+        size="xl"
+        class="w-full justify-center"
+        @click="nextQuestion(-1)"
+      >
+        {{ $t('strong_disagree') }}
+      </UButton>
+
+      <div class="mt-2 flex justify-center">
+        <UButton
+          v-if="questionsState.currentQuestionIndex > 0"
+          color="neutral"
+          variant="ghost"
+          @click="prevQuestion"
+        >
+          ← {{ $t('prev_question') }}
+        </UButton>
+        <NuxtLinkLocale v-else to="/">
+          <UButton color="neutral" variant="ghost">
+            ← {{ $t('back_home') }}
+          </UButton>
+        </NuxtLinkLocale>
+      </div>
+    </div>
   </div>
 </template>
-
-<style></style>
